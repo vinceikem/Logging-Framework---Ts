@@ -1,4 +1,4 @@
-# Logging Framework
+# lighty-log
 
 A simple TypeScript logging framework for Node.js with support for console, file, and HTTP logging.
 
@@ -12,14 +12,25 @@ A simple TypeScript logging framework for Node.js with support for console, file
 
 ## Installation
 
+Install from npm:
+
+```sh
+npm install lighty-log
+```
+
+Or, if using locally from source:
+
 ```sh
 npm install
+npm run build
 ```
 
 ## Usage
 
+Import and create a logger instance:
+
 ```typescript
-import { Logger } from "./src/index";
+import { Logger } from "lighty-log";
 
 // Create a logger instance
 const logger = new Logger("prod", "https://your-endpoint.com/logs");
@@ -48,8 +59,3 @@ Run unit tests with:
 
 ```sh
 npm test
-```
-
-## License
-
-MIT

@@ -1,29 +1,28 @@
 {
-  "name": "logging-framework",
+  "name": "lighty-log",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A simple but production-ready TypeScript logger with console, file, and HTTP support.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "ts-node src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "jest"
+    "dev": "ts-node src/index.ts",
+    "lint": "eslint . --ext .ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "keywords": ["logger", "typescript", "logging", "nodejs"],
+  "author": "Your Name",
+  "license": "MIT",
   "dependencies": {
-    "axios": "^1.12.2",
-    "chalk": "^4.1.2",
-    "dotenv": "^17.2.3"
+    "axios": "^1.7.0",
+    "chalk": "^5.3.0"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "@types/node": "^24.6.2",
-    "jest": "^30.2.0",
-    "ts-jest": "^29.4.4",
+    "@types/node": "^22.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.6.0",
+    "eslint": "^9.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0"
   }
 }

@@ -15,50 +15,42 @@ type Env = "dev" | "prod";
 
 function color(level: Level): string {
     switch (level) {
-        case Level.DEBUG:
-            return chalk.green(Level[level]);
-        case Level.INFO:
-            return chalk.blue(Level[level]);
-        case Level.WARN:
-            return chalk.yellow(Level[level]);
-        case Level.ERROR:
-            return chalk.red(Level[level]);
-        case Level.FATAL:
-            return chalk.magenta(Level[level]);
+        case Level.DEBUG: return chalk.green(Level[level]);
+        case Level.INFO: return chalk.blue(Level[level]);
+        case Level.WARN: return chalk.yellow(Level[level]);
+        case Level.ERROR: return chalk.red(Level[level]);
+        case Level.FATAL: return chalk.magenta(Level[level]);
+        default: return Level[level];
     }
 }
 
-function prettyPrint(object: object, indent?: number): string {
+function prettyPrint(object: Record<string, unknown>, indent: number = 2): string {
     let result = "{";
-    for (let key of Object.keys(object)) {
-        result += `\n${" ".repeat(indent || 2)}${key} : ${
-            object[key as keyof object]
-        }`;
+    for (const key of Object.keys(object)) {
+        result += `\n${" ".repeat(indent)}${key}: ${object[key]}`;
     }
-    result += "\n}";
-    return result;
+    return result + "\n}";
 }
 
 export class Logger {
-    public env: Env;
+    private env: Env;
     private logFile: string;
     private httpEndpoint?: string;
+    private minLevel: Level;
 
-    constructor(env: Env, httpEndpoint?: string) {
-        this.httpEndpoint = httpEndpoint;
+    constructor(env: Env, httpEndpoint?: string, minLevel: Level = Level.WARN) {
         this.env = env;
+        this.httpEndpoint = httpEndpoint;
+        this.minLevel = env === "dev" ? Level.DEBUG : minLevel;
 
-        // Create logs folder if not exists
+        // Ensure logs directory
         const logDir = path.join(__dirname, "logs");
         if (!fs.existsSync(logDir)) {
             fs.mkdirSync(logDir);
         }
 
-        // filename like "Mon_Oct_02_2025.log"
-        const fileName = `${new Date().toDateString()}.log`.replace(
-            /\s+/g,
-            "_"
-        );
+        // Daily log file: 2025-10-03.log
+        const fileName = `${new Date().toISOString().split("T")[0]}.log`;
         this.logFile = path.join(logDir, fileName);
     }
 
@@ -66,24 +58,32 @@ export class Logger {
         try {
             await fs.promises.appendFile(this.logFile, line + "\n", "utf-8");
         } catch (err) {
-            console.error("Failed to write log to file:", err);
+            console.error("File log failed:", (err as Error).message);
         }
     }
 
     private async sendToHttp(payload: object): Promise<void> {
         try {
-            await axios.post(this.httpEndpoint!, payload);
-        } catch (error) {
-            console.error("Failed to send log file");
+            if (this.httpEndpoint) {
+                await axios.post(this.httpEndpoint, payload);
+            }
+        } catch (err) {
+            console.error("HTTP log failed:", (err as Error).message);
         }
     }
 
-    private log(
+    private shouldLog(level: Level): boolean {
+        return level >= this.minLevel;
+    }
+
+    private async log(
         level: Level,
         context: string,
         message: string,
-        metadata?: object
-    ): void {
+        metadata?: Record<string, unknown>
+    ): Promise<void> {
+        if (!this.shouldLog(level)) return;
+
         const timestamp = new Date().toISOString();
         const payload = {
             level: Level[level],
@@ -93,42 +93,40 @@ export class Logger {
             metadata: metadata || null,
         };
 
-        // console (colored)
-        console.log(
-            `[${color(level)}]: ${timestamp} - ${chalk.yellow(
-                context
-            )} - ${message}${
-                metadata ? `\n${chalk.cyanBright(prettyPrint(metadata))}` : ""
-            }`
-        );
+        // Console (dev colored, prod plain)
+        const formatted = `[${Level[level]}] ${timestamp} - ${context} - ${message}`;
+        if (this.env === "dev") {
+            console.log(
+                `[${color(level)}] ${timestamp} - ${chalk.yellow(context)} - ${message}${
+                    metadata ? `\n${chalk.cyanBright(prettyPrint(metadata))}` : ""
+                }`
+            );
+        } else {
+            console.log(formatted);
+        }
 
-        // file (async, non-blocking)
-        this.writeToFile(JSON.stringify(payload));
+        // File logging (structured JSON)
+        await this.writeToFile(JSON.stringify(payload));
 
-        if (!!this.httpEndpoint) {
-            this.sendToHttp(payload);
+        // Remote logging
+        if (this.httpEndpoint) {
+            await this.sendToHttp(payload);
         }
     }
 
-    debug(context: string, message: string, meta?: object): void {
-        if (this.env === "dev") this.log(Level.DEBUG, context, message, meta);
+    debug(ctx: string, msg: string, meta?: Record<string, unknown>) {
+        this.log(Level.DEBUG, ctx, msg, meta);
     }
-
-    info(context: string, message: string, meta?: object): void {
-        if (this.env === "dev") this.log(Level.INFO, context, message, meta);
+    info(ctx: string, msg: string, meta?: Record<string, unknown>) {
+        this.log(Level.INFO, ctx, msg, meta);
     }
-
-    warn(context: string, message: string, meta?: object): void {
-        this.log(Level.WARN, context, message, meta);
+    warn(ctx: string, msg: string, meta?: Record<string, unknown>) {
+        this.log(Level.WARN, ctx, msg, meta);
     }
-
-    error(context: string, message: string, meta?: object): void {
-        this.log(Level.ERROR, context, message, meta);
+    error(ctx: string, msg: string, meta?: Record<string, unknown>) {
+        this.log(Level.ERROR, ctx, msg, meta);
     }
-
-    fatal(context: string, message: string, meta?: object): void {
-        this.log(Level.FATAL, context, message, meta);
+    fatal(ctx: string, msg: string, meta?: Record<string, unknown>) {
+        this.log(Level.FATAL, ctx, msg, meta);
     }
 }
-
-

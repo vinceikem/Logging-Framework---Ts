@@ -1,0 +1,1 @@
+{"level":"ERROR","timestamp":"2025-10-02T16:14:05.869Z","context":"Order","message":"Failed to update order","metadata":{"id":1,"reason":"DB error"}}

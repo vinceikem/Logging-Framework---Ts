@@ -16,3 +16,11 @@
 {"level":"ERROR","timestamp":"2025-10-04T05:03:57.367Z","context":"Order","message":"Failed to update order","metadata":{"id":1,"reason":"DB error"}}
 {"level":"ERROR","timestamp":"2025-10-04T05:05:28.338Z","context":"Order","message":"Failed to update order","metadata":{"id":1,"reason":"DB error"}}
 {"level":"ERROR","timestamp":"2025-10-04T05:13:44.111Z","context":"Order","message":"Failed to update order","metadata":{"id":1,"reason":"DB error"}}
+{"level":"DEBUG","timestamp":"2025-10-04T05:20:33.784Z","context":"DevContext","message":"Debug message","metadata":{"foo":"bar"}}
+{"level":"FATAL","timestamp":"2025-10-04T05:20:33.799Z","context":"DevContext","message":"Fatal message","metadata":{"foo":"bar"}}
+{"level":"INFO","timestamp":"2025-10-04T05:20:33.792Z","context":"DevContext","message":"Info message","metadata":{"foo":"bar"}}
+{"level":"WARN","timestamp":"2025-10-04T05:20:33.794Z","context":"DevContext","message":"Warn message","metadata":{"foo":"bar"}}
+{"level":"WARN","timestamp":"2025-10-04T05:20:33.801Z","context":"ProdContext","message":"Warn message","metadata":{"foo":"bar"}}
+{"level":"ERROR","timestamp":"2025-10-04T05:20:33.795Z","context":"DevContext","message":"Error message","metadata":{"foo":"bar"}}
+{"level":"ERROR","timestamp":"2025-10-04T05:20:33.804Z","context":"ProdContext","message":"Error message","metadata":{"foo":"bar"}}
+{"level":"FATAL","timestamp":"2025-10-04T05:20:33.806Z","context":"ProdContext","message":"Fatal message","metadata":{"foo":"bar"}}

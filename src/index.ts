@@ -131,7 +131,4 @@ export class Logger {
     }
 }
 
-const logger = new Logger("prod");
 
-logger.info("Order", "Order created", { id: 1, status: "pending" });
-logger.error("Order", "Failed to update order", { id: 1, reason: "DB error" });
